@@ -34,6 +34,8 @@ for _ in tqdm(range(num_episodes)):
 
         state = new_state
 
+    steps.append(step)
+
     if _ % scale == 0: print('Average number of steps: {:0.02f}'.format(np.mean(steps[-scale:])))
 
 # Test the new state
