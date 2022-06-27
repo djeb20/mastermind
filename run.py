@@ -11,14 +11,19 @@ agent = DQN(env.state_dim, env.action_dim,
 
 num_episodes = int(1e7)
 
+steps = []
+scale = 100
+
 for _ in tqdm(range(num_episodes)):
 
     state = env.reset()
+    step = 0
 
     while True:
 
         action = agent.choose_action(state)
         new_state, reward, done, _ = env.step(action)
+        step += 1
 
         agent.store((state, action, reward, new_state, 1 - done))
         batch = agent.get_batch()
@@ -28,6 +33,8 @@ for _ in tqdm(range(num_episodes)):
         if done: break
 
         state = new_state
+
+    if _ % scale == 0: print('Average number of steps: {:0.02f}'.format(np.mean(steps[-scale:])))
 
 # Test the new state
 
