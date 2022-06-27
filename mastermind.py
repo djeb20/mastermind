@@ -33,7 +33,7 @@ class mastermind:
         self.count = 0
 
         while True:
-            goal = np.random.randint(0, 9, 4) + 1
+            goal = np.random.randint(0, 8, 4) + 1
             if not (goal == self.test_goal).all():
                 break
 
