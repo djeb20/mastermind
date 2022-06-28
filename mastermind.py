@@ -21,7 +21,7 @@ class mastermind:
         self.width = 4
         self.height = 12
 
-        self.state_dim = self.height * self.width + 2
+        self.state_dim = self.height * (self.width + 2)
         self.action_dim = len(self.colour_dict)
 
         self.test_goal = np.arange(1, 5)
