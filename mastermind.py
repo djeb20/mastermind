@@ -18,13 +18,13 @@ class mastermind:
                             6: 'G',
                             7: 'Y'}
 
-        self.state_dim = 12 * 6
+        self.width = 4
+        self.height = 12
+
+        self.state_dim = self.height * self.width + 2
         self.action_dim = len(self.colour_dict)
 
         self.test_goal = np.arange(1, 5)
-
-        self.width = 4
-        self.height = 12
 
         # Trying to speed up learning
         self.ep_count = 0
@@ -41,7 +41,7 @@ class mastermind:
 
         self.grid = np.zeros((self.height, self.width + 2))
 
-        self.goal = np.arange(1, 5)
+        self.goal = self.test_goal
 
         # if self.ep_count % 100 == 0:
 
@@ -78,7 +78,7 @@ class mastermind:
 
         return self.grid.flatten(), reward, done, False
 
-    def take_step(self, action, grid, goal, count):
+    def take_step(self, grid, action, goal, count):
         """
         Calculates reward etc for step in environment.
         """
@@ -87,19 +87,21 @@ class mastermind:
         reward = -1
         done = False
 
-        row = count // 4
-        col = count % 4
+        row_ind = count // 4
+        col_ind = count % 4
 
-        grid[row, col + 1] = action + 1
+        grid[row_ind, col_ind + 1] = action + 1
 
-        if (col - 3) == 0: # row is complete
+        if col_ind == 3: # row is complete
+
+            row = grid[row_ind][1:5] # Row we care about
 
             # Number exactly right
-            right_ind = grid[row][1:5] == goal
+            right_ind = row == goal
             right = (right_ind).sum()
 
             # Number that are close, need more efficient solution
-            d = dict(zip(*np.unique(grid[row][1:5][right_ind], return_counts=True)))
+            d = dict(zip(*np.unique(row[not right_ind], return_counts=True)))
             sum = np.sum([d[colour] for colour in goal if colour in d])
             close = right - sum
 
@@ -136,8 +138,8 @@ class TransDict(dict, mastermind):
     def __missing__(self, key):
 
         grid, action, goal, count = key
-        val = self.take_step(action, 
-                             np.frombuffer(grid, dtype="int64").copy().reshape(self.height, self.width + 2), 
+        val = self.take_step(np.frombuffer(grid, dtype="int64").reshape(self.height, self.width + 2).copy(),
+                             action, 
                              np.frombuffer(goal, dtype="int64"), 
                              count)
         # val = self.take_step(action, 
