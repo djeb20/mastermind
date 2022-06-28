@@ -102,7 +102,7 @@ class mastermind:
 
             # Number that are close, need more efficient solution
             d = dict(zip(*np.unique(row[not_right_ind], return_counts=True)))
-            sum = np.sum([d[colour] for colour in goal if colour in d])
+            sum = np.sum([d[colour] for colour in goal[not_right_ind] if colour in d])
             close = right - sum
 
             grid[row_ind][0] = close
