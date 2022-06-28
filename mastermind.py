@@ -96,12 +96,12 @@ class mastermind:
 
             row = grid[row_ind][1:5] # Row we care about
 
-            # Number exactly right
-            right_ind = row == goal
-            right = (right_ind).sum()
+            # Number not exactly right, then number exactly right
+            not_right_ind = row != goal
+            right = self.width - (not_right_ind).sum()
 
             # Number that are close, need more efficient solution
-            d = dict(zip(*np.unique(row[not right_ind], return_counts=True)))
+            d = dict(zip(*np.unique(row[not_right_ind], return_counts=True)))
             sum = np.sum([d[colour] for colour in goal if colour in d])
             close = right - sum
 
