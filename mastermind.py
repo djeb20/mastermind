@@ -43,7 +43,7 @@ class mastermind:
 
         self.grid = np.zeros((self.height, self.width + 2))
 
-        if self.count % (100 * self.height) == 0:
+        if self.count % (100 * self.height * self.width) == 0:
 
             while True:
                 goal = np.random.randint(0, 8, 4) + 1
