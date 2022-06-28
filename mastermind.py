@@ -98,12 +98,17 @@ class mastermind:
 
             # Number not exactly right, then number exactly right
             not_right_ind = row != goal
-            right = self.width - (not_right_ind).sum()
+            right = self.width - np.count_nonzero(not_right_ind)
+
+            n_row = row[not_right_ind]
+            n_goal = goal[not_right_ind]
 
             # Number that are close, need more efficient solution
-            d = dict(zip(*np.unique(row[not_right_ind], return_counts=True)))
-            sum = np.sum([d[colour] for colour in goal[not_right_ind] if colour in d])
-            close = right - sum
+            close = 0
+            for a in n_row:
+                if a in n_goal:
+                    close += 1
+                    n_goal[(n_goal == a).argmax()] = 0
 
             grid[row_ind][0] = close
             grid[row_ind][-1] = right
