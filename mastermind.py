@@ -105,10 +105,10 @@ class mastermind:
             sum = np.sum([d[colour] for colour in goal if colour in d])
             close = right - sum
 
-            grid[row][0] = close
-            grid[row][-1] = right
+            grid[row_ind][0] = close
+            grid[row_ind][-1] = right
 
-            if row == 11: # Finished game with no win
+            if row_ind == 11: # Finished game with no win
                 done = True
 
             if right == 4: # Won game
