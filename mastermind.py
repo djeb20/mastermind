@@ -133,12 +133,12 @@ class TransDict(dict, mastermind):
     def __missing__(self, key):
 
         grid, action, goal, count = key
-        val = self.take_step(np.frombuffer(grid, dtype="int64").reshape(self.height, self.width + 2), 
-                             action, 
+        val = self.take_step(action, 
+                             np.frombuffer(grid, dtype="int64").reshape(self.height, self.width + 2), 
                              np.frombuffer(goal, dtype="int64"), 
                              count)
-        # val = self.take_step(np.frombuffer(grid, dtype="int32").reshape(self.height, self.width), 
-        #                      action, 
+        # val = self.take_step(action, 
+        #                      np.frombuffer(grid, dtype=32").reshape(self.height, self.width + 2), 
         #                      np.frombuffer(goal, dtype="int32"), 
         #                      count)
         
