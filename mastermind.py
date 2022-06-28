@@ -27,8 +27,8 @@ class mastermind:
         self.height = 12
 
         # Trying to speed up learning
-        self.count = 0
-
+        self.ep_count = 0
+        
         # To make super fast, transitions dictionary.
         self.trans = TransDict()
         self.trans.height = self.height
@@ -39,11 +39,9 @@ class mastermind:
         Resets environment to empty grid with new goal.
         """
 
-        self.count = 0
-
         self.grid = np.zeros((self.height, self.width + 2))
 
-        if self.count % (100 * self.height * self.width) == 0:
+        if self.ep_count % 100 == 0:
 
             while True:
                 goal = np.random.randint(0, 8, 4) + 1
@@ -52,6 +50,9 @@ class mastermind:
 
             self.goal = goal
             self.goal_render = np.array([self.colour_dict[i - 1] for i in self.goal])
+
+        self.count = 0
+        self.ep_count += 1
 
         return self.grid.flatten()
     
