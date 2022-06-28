@@ -21,7 +21,7 @@ class mastermind:
         self.state_dim = 12 * 6
         self.action_dim = len(self.colour_dict)
 
-        self.test_goal = np.arange(4) + 1
+        self.test_goal = np.arange(1, 5)
 
         self.width = 4
         self.height = 12
@@ -41,15 +41,17 @@ class mastermind:
 
         self.grid = np.zeros((self.height, self.width + 2))
 
-        if self.ep_count % 100 == 0:
+        self.goal = np.arange(1, 5)
 
-            while True:
-                goal = np.random.randint(0, 8, 4) + 1
-                if not (goal == self.test_goal).all():
-                    break
+        # if self.ep_count % 100 == 0:
 
-            self.goal = goal
-            self.goal_render = np.array([self.colour_dict[i - 1] for i in self.goal])
+        #     while True:
+        #         goal = np.random.randint(0, 8, 4) + 1
+        #         if not (goal == self.test_goal).all():
+        #             break
+
+        #     self.goal = goal
+        #     self.goal_render = np.array([self.colour_dict[i - 1] for i in self.goal])
 
         self.count = 0
         self.ep_count += 1
