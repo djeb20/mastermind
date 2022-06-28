@@ -9,22 +9,24 @@ class mastermind:
     def __init__(self):
 
         # Colour from game
-        self.colour_dict = {0: 'R',
-                            1: 'P',
-                            2: 'B',
-                            3: 'O',
-                            4: 'W',
-                            5: 'K',
-                            6: 'G',
-                            7: 'Y'}
+        self.colour_dict = {0: ' ',
+                            1: 'R',
+                            2: 'P',
+                            3: 'B',
+                            4: 'O',
+                            5: 'W',
+                            6: 'K',
+                            7: 'G',
+                            8: 'Y'}
 
         self.width = 4
         self.height = 12
 
         self.state_dim = self.height * (self.width + 2)
-        self.action_dim = len(self.colour_dict)
+        self.action_dim = len(self.colour_dict) - 1
 
-        self.test_goal = np.arange(1, 5)
+        # self.test_goal = np.arange(1, 5)
+        self.test_goal = np.random.randint(0, 8, 4) + 1
 
         # Trying to speed up learning
         self.ep_count = 0
@@ -39,19 +41,20 @@ class mastermind:
         Resets environment to empty grid with new goal.
         """
 
-        self.grid = np.zeros((self.height, self.width + 2))
+        self.grid = np.zeros((self.height, self.width + 2), dtype=int)
 
-        self.goal = self.test_goal
+        # self.goal = self.test_goal
+        # self.goal_render = np.array([self.colour_dict[i] for i in self.goal])
 
-        # if self.ep_count % 100 == 0:
+        if self.ep_count % 2e4 == 0:
 
-        #     while True:
-        #         goal = np.random.randint(0, 8, 4) + 1
-        #         if not (goal == self.test_goal).all():
-        #             break
+            while True:
+                goal = np.random.randint(0, 8, 4) + 1
+                if not (goal == self.test_goal).all():
+                    break
 
-        #     self.goal = goal
-        #     self.goal_render = np.array([self.colour_dict[i - 1] for i in self.goal])
+            self.goal = goal
+            self.goal_render = np.array([self.colour_dict[i - 1] for i in self.goal])
 
         self.count = 0
         self.ep_count += 1
@@ -110,8 +113,8 @@ class mastermind:
                     close += 1
                     n_goal[(n_goal == a).argmax()] = 0
 
-            grid[row_ind][0] = close
-            grid[row_ind][-1] = right
+            grid[row_ind, 0] = close
+            grid[row_ind, -1] = right
 
             if row_ind == 11: # Finished game with no win
                 done = True
@@ -128,11 +131,12 @@ class mastermind:
         Could map be used?
         """
 
-        self.grid_render = np.full((12, 6), ' ')
+        self.grid_render = np.zeros((self.height, self.width + 2), dtype='<U1')
 
-
-        for i, in range(self.height):
-            for j in range(1, self.width - 1):
+        for i in range(self.height):
+            self.grid_render[i, 0] = self.grid[i, 0]
+            self.grid_render[i, -1] = self.grid[i, -1]
+            for j in range(1, self.width + 1):
 
                 self.grid_render[i, j] = self.colour_dict[self.grid[i, j]]
 
@@ -143,14 +147,14 @@ class TransDict(dict, mastermind):
     def __missing__(self, key):
 
         grid, action, goal, count = key
-        val = self.take_step(np.frombuffer(grid, dtype="int64").reshape(self.height, self.width + 2).copy(),
-                             action, 
-                             np.frombuffer(goal, dtype="int64"), 
-                             count)
-        # val = self.take_step(action, 
-        #                      np.frombuffer(grid, dtype=32").reshape(self.height, self.width + 2), 
-        #                      np.frombuffer(goal, dtype="int32"), 
+        # val = self.take_step(np.frombuffer(grid, dtype="int64").reshape(self.height, self.width + 2).copy(),
+        #                      action, 
+        #                      np.frombuffer(goal, dtype="int64"), 
         #                      count)
+        val = self.take_step(np.frombuffer(grid, dtype="int32").reshape(self.height, self.width + 2).copy(),
+                             action, 
+                             np.frombuffer(goal, dtype="int32"), 
+                             count)
         
         self.__setitem__(key, val)
         
