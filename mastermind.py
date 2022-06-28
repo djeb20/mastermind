@@ -134,7 +134,7 @@ class TransDict(dict, mastermind):
 
         grid, action, goal, count = key
         val = self.take_step(action, 
-                             np.frombuffer(grid, dtype="int64").reshape(self.height, self.width + 2), 
+                             np.frombuffer(grid, dtype="int64").copy().reshape(self.height, self.width + 2), 
                              np.frombuffer(goal, dtype="int64"), 
                              count)
         # val = self.take_step(action, 
