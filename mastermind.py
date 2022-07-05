@@ -6,7 +6,7 @@ class mastermind:
     Environment for the game mastermind.
     """
 
-    def __init__(self):
+    def __init__(self, action_type='peg'):
 
         # Colour from game
         self.colour_dict = {0: ' ',
@@ -19,14 +19,29 @@ class mastermind:
                             7: 'G',
                             8: 'Y'}
 
+        self.action_type = action_type
+
         self.width = 4
         self.height = 12
 
-        self.state_dim = self.height * (self.width + 2)
-        self.action_dim = len(self.colour_dict) - 1
+        self.state_dim = self.height * (self.width + 2) # Number of state features
+
+        if self.action_type == 'peg': self.action_dim = len(self.colour_dict) - 1
+        elif self.action_type == 'guess': 
+
+            def convert(i):
+                guess = []
+                for _ in range(4):
+                    guess.append(i % 8)
+                    i = i // 8
+                return np.array(guess)
+
+            self.action_dim = 8 ** 4
+            self.guess_dict = {i : convert(i) for i in range(self.action_dim)}
 
         # self.test_goal = np.arange(1, 5)
         self.test_goal = np.random.randint(0, 8, 4) + 1
+        # self.test_goals = [np.random.randint(0, 8, 4) + 1, np.random.randint(0, 8, 4) + 1]
 
         # Trying to speed up learning
         self.ep_count = 0
@@ -43,18 +58,15 @@ class mastermind:
 
         self.grid = np.zeros((self.height, self.width + 2), dtype=int)
 
-        # self.goal = self.test_goal
+        # self.goal = self.test_goals[np.random.randint(2)]
         # self.goal_render = np.array([self.colour_dict[i] for i in self.goal])
 
-        if self.ep_count % 2e4 == 0:
+        while True: # Sillyness to not reset to test goal
+            goal = np.random.randint(0, 8, 4) + 1
+            if not (goal == self.test_goal).all(): break
 
-            while True:
-                goal = np.random.randint(0, 8, 4) + 1
-                if not (goal == self.test_goal).all():
-                    break
-
-            self.goal = goal
-            self.goal_render = np.array([self.colour_dict[i - 1] for i in self.goal])
+        self.goal = goal
+        self.goal_render = np.array([self.colour_dict[i] for i in self.goal])
 
         self.count = 0
         self.ep_count += 1
@@ -66,18 +78,16 @@ class mastermind:
         Step in the environment, places piece in next available square.
         """
 
-        self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), action, self.goal.tobytes(), self.count])]
+        if self.action_type == 'peg':
 
-        # if tuple([self.grid.tobytes(), action, self.goal.tobytes(), self.count]) not in self.trans:
+            self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), action, self.goal.tobytes(), self.count])]
+            self.count += 1
 
-        #     self.grid, reward, done = self.take_step(action, self.grid, self.goal, self.count)
-        #     self.trans[tuple([self.grid.tobytes(), action, self.goal.tobytes(), self.count])] = (self.grid, reward, done)
+        elif self.action_type == 'guess':
+            for a in self.guess_dict[action]:
 
-        # else:
-
-        #     self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), action, self.goal.tobytes(), self.count])]
-
-        self.count += 1
+                self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), a, self.goal.tobytes(), self.count])]
+                self.count += 1
 
         return self.grid.flatten(), reward, done, False
 
@@ -147,13 +157,9 @@ class TransDict(dict, mastermind):
     def __missing__(self, key):
 
         grid, action, goal, count = key
-        # val = self.take_step(np.frombuffer(grid, dtype="int64").reshape(self.height, self.width + 2).copy(),
-        #                      action, 
-        #                      np.frombuffer(goal, dtype="int64"), 
-        #                      count)
-        val = self.take_step(np.frombuffer(grid, dtype="int32").reshape(self.height, self.width + 2).copy(),
+        val = self.take_step(np.frombuffer(grid, dtype=np.int_).reshape(self.height, self.width + 2).copy(),
                              action, 
-                             np.frombuffer(goal, dtype="int32"), 
+                             np.frombuffer(goal, dtype=np.int_), 
                              count)
         
         self.__setitem__(key, val)
