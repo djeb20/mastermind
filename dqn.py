@@ -129,7 +129,6 @@ class DQN:
         b_size = tf.shape(old_states)[0]
         buf_ind = tf.range(b_size)
 
-        # if self.model_arch == 0:      
         with tf.GradientTape() as g:
             
             Q_max = tf.math.reduce_max(self.target_critic(new_states, training=True), axis=1)            

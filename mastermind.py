@@ -6,7 +6,7 @@ class mastermind:
     Environment for the game mastermind.
     """
 
-    def __init__(self, action_type='peg'):
+    def __init__(self, action_type='peg', goal_type='fixed', reward_struc='basic'):
 
         # Colour from game
         self.colour_dict = {0: ' ',
@@ -20,6 +20,8 @@ class mastermind:
                             8: 'Y'}
 
         self.action_type = action_type
+        self.goal_type = goal_type
+        self.reward_struc = reward_struc
 
         self.width = 4
         self.height = 12
@@ -39,7 +41,7 @@ class mastermind:
             self.action_dim = 8 ** 4
             self.guess_dict = {i : convert(i) for i in range(self.action_dim)}
 
-        # self.test_goal = np.arange(1, 5)
+        self.fixed_goal = np.random.randint(0, 8, 4) + 1
         self.test_goal = np.random.randint(0, 8, 4) + 1
         # self.test_goals = [np.random.randint(0, 8, 4) + 1, np.random.randint(0, 8, 4) + 1]
 
@@ -50,6 +52,7 @@ class mastermind:
         self.trans = TransDict()
         self.trans.height = self.height
         self.trans.width = self.width
+        self.trans.reward_struc = reward_struc
 
     def reset(self):
         """
@@ -58,12 +61,12 @@ class mastermind:
 
         self.grid = np.zeros((self.height, self.width + 2), dtype=int)
 
-        # self.goal = self.test_goals[np.random.randint(2)]
-        # self.goal_render = np.array([self.colour_dict[i] for i in self.goal])
+        if self.goal_type == 'fixed': goal = self.test_goal
+        elif self.goal_type == 'changes':
 
-        while True: # Sillyness to not reset to test goal
-            goal = np.random.randint(0, 8, 4) + 1
-            if not (goal == self.test_goal).all(): break
+            while True: # Sillyness to not reset to test goal
+                goal = np.random.randint(0, 8, 4) + 1
+                if not (goal == self.test_goal).all(): break
 
         self.goal = goal
         self.goal_render = np.array([self.colour_dict[i] for i in self.goal])
@@ -132,6 +135,8 @@ class mastermind:
             if right == 4: # Won game
                 done = True
                 reward += 30
+
+            if self.reward_struc == 'clues': reward += close + 2 * right
 
         return grid, reward, done
 
