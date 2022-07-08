@@ -8,7 +8,6 @@ import tensorflow as tf
 import numpy as np
 import keras
 from keras.layers import Dense
-from keras.layers import Concatenate
 from keras.layers import Input
 
 class DQN:

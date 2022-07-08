@@ -62,7 +62,7 @@ class mastermind:
         self.grid = np.zeros((self.height, self.width + 2), dtype=int)
 
         if self.goal_type == 'fixed': goal = self.test_goal
-        elif self.goal_type == 'changes':
+        elif self.goal_type == 'change':
 
             while True: # Sillyness to not reset to test goal
                 goal = np.random.randint(0, 8, 4) + 1
