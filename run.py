@@ -2,6 +2,9 @@ import numpy as np
 from mastermind import mastermind
 from dqn import DQN
 from tqdm import tqdm
+import os
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 env = mastermind(action_type='peg', goal_type='change', reward_struc='basic')
 agent = DQN(env.state_dim, env.action_dim,
