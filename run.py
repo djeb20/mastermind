@@ -1,7 +1,7 @@
 import numpy as np
 from mastermind import mastermind
 
-env = mastermind(action_type='guess', reward_struc='basic', num_goals=1)
+env = mastermind(action_type='guess', reward_struc='basic', num_goals=2)
 
 # from dqn import Agent
 # agent = Agent(env, state_dim=env.state_dim, num_actions=env.action_dim,
