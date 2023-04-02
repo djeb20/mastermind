@@ -357,7 +357,7 @@ class Agent:
         for ite in tqdm(range(num_ite)):
 
             self.collect_experience(steps_per_agent, num_p, return_cache) # return_cache = ?
-            print('Episode Number: {}, Average Return: {}'.format(num_p * return_cache['count'], np.mean(return_cache['rets'])))
+            print('Episode Number (*{}): {}, Average Return: {}'.format(num_p, return_cache['count'], np.mean(return_cache['rets'][:return_cache['count']])))
             self.learn(num_p, num_epochs, batch_size, steps_per_agent)
             
             # if ite % 10 == 0:
