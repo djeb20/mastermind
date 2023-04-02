@@ -1,26 +1,19 @@
 import numpy as np
 from collections import defaultdict
+from itertools import product
 
 class mastermind:
     """
     Environment for the game mastermind.
     """
 
-    def __init__(self, action_type='peg', goal_type='fixed', reward_struc='basic'):
+    def __init__(self, action_type='guess', reward_struc='basic', num_goals=1):
 
         # Colour from game
-        self.colour_dict = {0: ' ',
-                            1: 'R',
-                            2: 'P',
-                            3: 'B',
-                            4: 'O',
-                            5: 'W',
-                            6: 'K',
-                            7: 'G',
-                            8: 'Y'}
+        self.colour_dict = {0: ' ', 1: 'R', 2: 'P', 3: 'B', 4: 'O', 
+                            5: 'W', 6: 'K', 7: 'G', 8: 'Y'}
 
         self.action_type = action_type
-        self.goal_type = goal_type
         self.reward_struc = reward_struc
 
         self.width = 4
@@ -41,9 +34,9 @@ class mastermind:
             self.action_dim = 8 ** 4
             self.guess_dict = {i : convert(i) for i in range(self.action_dim)}
 
-        self.fixed_goal = np.random.randint(0, 8, 4) + 1
-        self.test_goal = np.random.randint(0, 8, 4) + 1
-        # self.test_goals = [np.random.randint(0, 8, 4) + 1, np.random.randint(0, 8, 4) + 1]
+        self.all_goals = np.array(list(product(*(range(1, 9) for _ in range(4)))))
+        self.num_goals = num_goals
+        self.goals = self.all_goals[np.random.choice(len(self.all_goals), self.num_goals, replace=False)]
 
         # Trying to speed up learning
         self.ep_count = 0
@@ -60,21 +53,14 @@ class mastermind:
         """
 
         self.grid = np.zeros((self.height, self.width + 2), dtype=int)
+        self.goal = self.goals[np.random.randint(self.num_goals)]
 
-        if self.goal_type == 'fixed': goal = self.test_goal
-        elif self.goal_type == 'change':
-
-            while True: # Sillyness to not reset to test goal
-                goal = np.random.randint(0, 8, 4) + 1
-                if not (goal == self.test_goal).all(): break
-
-        self.goal = goal
         self.goal_render = np.array([self.colour_dict[i] for i in self.goal])
 
         self.count = 0
         self.ep_count += 1
 
-        return self.grid.flatten()
+        return self.grid.flatten(), None
     
     def step(self, action):
         """
@@ -83,16 +69,18 @@ class mastermind:
 
         if self.action_type == 'peg':
 
-            self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), action, self.goal.tobytes(), self.count])]
+            self.grid, reward, done = self.take_step(self.grid, action, self.goal, self.count)
+            # self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), action, self.goal.tobytes(), self.count])]
             self.count += 1
 
         elif self.action_type == 'guess':
             for a in self.guess_dict[action]:
 
-                self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), a, self.goal.tobytes(), self.count])]
+                self.grid, reward, done = self.take_step(self.grid, a, self.goal, self.count)
+                # self.grid, reward, done = self.trans[tuple([self.grid.tobytes(), a, self.goal.tobytes(), self.count])]
                 self.count += 1
 
-        return self.grid.flatten(), reward, done, False
+        return self.grid.flatten(), reward, done, False, None
 
     def take_step(self, grid, action, goal, count):
         """
@@ -139,6 +127,13 @@ class mastermind:
             if self.reward_struc == 'clues': reward += close + 2 * right
 
         return grid, reward, done
+    
+    def sample(self):
+        """
+        Samples a random episode in the environment.
+        """
+
+        return np.random.randint(self.action_dim)
 
     def render(self):
         """

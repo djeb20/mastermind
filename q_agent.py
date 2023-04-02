@@ -71,7 +71,7 @@ class q_agent:
 
         for i in tqdm(range(num_episodes)):
 
-            state = self.env.reset()
+            state, _ = self.env.reset()
             ret = 0
 
             while True:
@@ -82,7 +82,7 @@ class q_agent:
 
                 # Usual RL, choose action, execute, update
                 action = self.choose_action(state)
-                new_state, reward, done, _ = self.env.step(action)
+                new_state, reward, done, _, _ = self.env.step(action)
                 update = self.update(state, action, new_state, reward, done)
                 state = new_state
 
@@ -106,8 +106,8 @@ class q_agent:
                     np.mean(steps[-scale:]),
                     len(self.Q_table)))
 
-            # Learning converges according to tolerance
-            if np.std(stds[-scale:]) < self.tol: break
+            # # Learning converges according to tolerance
+            # if np.std(stds[-scale:]) < self.tol: break
 
         print()
         print('Average td error: {:0.04f}, STD of STD: {}, Average ret: {:0.02f}, Average steps: {:0.02f}'.format(
@@ -116,5 +116,5 @@ class q_agent:
                     np.mean(returns[-scale:]),
                     np.mean(steps[-scale:])))
 
-        # Top line is for normal, bottom for multiprocessing
-        return dict(self.Q_table)
+        # # Top line is for normal, bottom for multiprocessing
+        # return dict(self.Q_table)
