@@ -15,8 +15,8 @@ env = mastermind(action_type='guess', reward_struc='basic', num_goals=10)
 from ppo_agent import Agent
 agent = Agent(env, state_dim=env.state_dim, num_actions=env.action_dim,
                  actor_arch=[128, 64], critic_arch=[128, 64],
-                 actor_rate=1e-4, critic_rate=1e-4,
+                 actor_rate=1e-3, critic_rate=1e-3,
                  gamma=0.99, lam=0.95, 
-                 epsilon_clip=0.2, entropy_coef=0.01)
+                 epsilon_clip=0.2, entropy_coef=0.1)
 
 agent.train(num_ite=100, num_epochs=30, num_p=100, steps_per_agent=100, batch_size=64)
