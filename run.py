@@ -17,6 +17,6 @@ agent = Agent(env, state_dim=env.state_dim, num_actions=env.action_dim,
                  actor_arch=[128, 64], critic_arch=[128, 64],
                  actor_rate=1e-4, critic_rate=1e-4,
                  gamma=0.99, lam=0.95, 
-                 epsilon_clip=1, entropy_coef=0.01)
+                 epsilon_clip=2, entropy_coef=0.01)
 
 agent.train(num_ite=100, num_epochs=30, num_p=20, steps_per_agent=100, batch_size=64)
