@@ -22,18 +22,13 @@ class q_agent:
         
         self.Q_table = defaultdict(lambda: np.zeros(self.action_dim))
         
-    def choose_action(self, state):
+    def choose_action(self, state, exp=True):
         """
         Chooses action with epsilon greedy policy.
         """
 
-        if np.random.rand() < self.epsilon:
-        
-            return np.random.randint(self.action_dim)
-            
-        else:
-            
-            return self.best_action(state)
+        if np.random.rand() < self.epsilon and exp: return np.random.randint(self.action_dim)
+        else: return self.best_action(state)
 
     def best_action(self, state):
         """
